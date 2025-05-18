@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tablet Straży Miejskiej</title>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+<style>
+  body {
+    background-color: #e9ecef;
+    font-family: 'Arial', sans-serif;
+  }
+
+  h1 {
+    text-align: center;
+    margin: 20px 0 10px;
+    color: #0069d9;
+    font-weight: bold;
+  }
+
+  /* Stała wiadomość */
+  #publicMessage {
+    max-width: 900px;
+    margin: 10px auto;
+    padding: 15px;
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 8px;
+    color: #0c5460;
+    font-size: 1.2em;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  /* Panel logowania */
+  #loginContainer {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  /* Ukrycie głównej części do momentu zalogowania */
+  #mainContent {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- Widoczna dla wszystkich wiadomość -->
+<div id="publicMessage" contenteditable="true">
+Kliknij, aby edytować wiadomość widoczną dla wszystkich.
+</div>
+
+<h1>Tablet Straży Miejskiej</h1>
+
+<!-- Panel logowania -->
+<div id="loginContainer">
+  <h4 class="text-center mb-4">Zaloguj się</h4>
+  <div class="mb-3">
+    <label for="loginInput" class="form-label">Login</label>
+    <input type="text" id="loginInput" class="form-control" placeholder="Login" />
+  </div>
+  <div class="mb-3">
+    <label for="passwordInput" class="form-label">Hasło</label>
+    <input type="password" id="passwordInput" class="form-control" placeholder="Hasło" />
+  </div>
+  <button class="btn btn-primary w-100" onclick="zaloguj()"><i class="bi bi-box-arrow-in-right"></i> Zaloguj się</button>
+</div>
+
+<!-- Główny panel, ukryty do zalogowania -->
+<div id="mainContent" class="container mt-4">
+
+<!-- Nawigacja zakładek -->
+<ul class="nav nav-tabs justify-content-center mb-4" id="categoryTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="obywatele-tab" data-bs-toggle="tab" data-bs-target="#obywatele" type="button" role="tab" aria-controls="obywatele" aria-selected="true" onclick="showTab('obywatele')">
+      <i class="bi bi-people"></i> Obywatele
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="mandaty-tab" data-bs-toggle="tab" data-bs-target="#mandaty" type="button" role="tab" aria-controls="mandaty" aria-selected="false" onclick="showTab('mandaty')">
+      <i class="bi bi-coin"></i> Mandaty
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="wyroki-tab" data-bs-toggle="tab" data-bs-target="#wyroki" type="button" role="tab" aria-controls="wyroki" aria-selected="false" onclick="showTab('wyroki')">
+      <i class="bi bi-file-earmark-text"></i> Wyroki
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="poszukiwane-tab" data-bs-toggle="tab" data-bs-target="#poszukiwane" type="button" role="tab" aria-controls="poszukiwane" aria-selected="false" onclick="showTab('poszukiwane')">
+      <i class="bi bi-car-front"></i> Poszukiwane pojazdy
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="raport-tab" data-bs-toggle="tab" data-bs-target="#raport" type="button" role="tab" aria-controls="raport" aria-selected="false" onclick="showTab('raport')">
+      <i class="bi bi-file-earmark-text"></i> Raport
+    </button>
+  </li>
+  <li class="nav-item ms-auto">
+    <button class="btn btn-danger btn-sm" onclick="wyloguj()"><i class="bi bi-box-arrow-right"></i> Wyloguj</button>
+  </li>
+</ul>
+
+<!-- Zawartość zakładek -->
+<div class="tab-content">
+
+<!-- Obywatele -->
+<div class="tab-pane fade show active" id="obywatele" role="tabpanel" aria-labelledby="obywatele-tab">
+  <h5 class="mb-3"><i class="bi bi-people"></i> Dodaj obywatela</h5>
+  <div class="row mb-3">
+    <div class="col">
+      <input type="text" id="obywatelImie" class="form-control" placeholder="Imię" />
+    </div>
+    <div class="col">
+      <input type="text" id="obywatelNazwisko" class="form-control" placeholder="Nazwisko" />
+    </div>
+    <div class="col">
+      <input type="number" id="obywatelWiek" class="form-control" placeholder="Wiek" />
+    </div>
+  </div>
+  <button class="btn btn-success" onclick="dodajObywatela()"><i class="bi bi-plus"></i> Dodaj obywatela</button>
+  <hr />
+  <h5>Lista obywateli:</h5>
+  <ul class="list-group" id="listaObywateli"></ul>
+</div>
+
+<!-- Mandaty -->
+<div class="tab-pane fade" id="mandaty" role="tabpanel" aria-labelledby="mandaty-tab">
+  <h5 class="mb-3"><i class="bi bi-coin"></i> Dodaj mandat</h5>
+  <div class="mb-3">
+    <label for="mandatObywatel" class="form-label">Obywatel</label>
+    <select id="mandatObywatel" class="form-select"></select>
+  </div>
+  <div class="row mb-3">
+    <div class="col">
+      <input type="number" id="mandatKwota" class="form-control" placeholder="Kwota (zł)" />
+    </div>
+    <div class="col">
+      <input type="date" id="mandatData" class="form-control" />
+    </div>
+  </div>
+  <div class="mb-3">
+    <input type="text" id="mandatPowod" class="form-control" placeholder="Powód" />
+  </div>
+  <div class="mb-3">
+    <input type="text" id="mandatCzasZaplaty" class="form-control" placeholder="Czas zapłaty" />
+  </div>
+  <div class="mb-3">
+    <input type="text" id="mandatFunkcjonariusz" class="form-control" placeholder="Wpisujący" />
+  </div>
+  <button class="btn btn-primary" onclick="dodajMandat()"><i class="bi bi-plus"></i> Dodaj mandat</button>
+  <hr />
+  <h5>Lista mandatów:</h5>
+  <ul class="list-group" id="listaMandatow"></ul>
+</div>
+
+<!-- Wyroki -->
+<div class="tab-pane fade" id="wyroki" role="tabpanel" aria-labelledby="wyroki-tab">
+  <h5 class="mb-3"><i class="bi bi-file-earmark-text"></i> Dodaj wyrok</h5>
+  <div class="row mb-3">
+    <div class="col">
+      <label for="wyrokObywatel" class="form-label">Obywatel</label>
+      <select id="wyrokObywatel" class="form-select"></select>
+    </div>
+    <div class="col">
+      <input type="text" id="wyrokKara" class="form-control" placeholder="Kara" />
+    </div>
+    <div class="col">
+      <input type="date" id="wyrokData" class="form-control" />
+    </div>
+  </div>
+  <div class="mb-3">
+    <input type="text" id="wyrokFunkcjonariusz" class="form-control" placeholder="Wpisujący" />
+  </div>
+  <button class="btn btn-primary" onclick="dodajWyrok()"><i class="bi bi-plus"></i> Dodaj wyrok</button>
+  <hr />
+  <h5>Lista wyroków:</h5>
+  <ul class="list-group" id="listaWyrokow"></ul>
+</div>
+
+<!-- Poszukiwane pojazdy -->
+<div class="tab-pane fade" id="poszukiwane" role="tabpanel" aria-labelledby="poszukiwane-tab">
+  <h5 class="mb-3"><i class="bi bi-car-front"></i> Dodaj poszukiwany pojazd</h5>
+  <div class="row mb-3">
+    <div class="col">
+      <input type="text" id="pojazdMarka" class="form-control" placeholder="Marka" />
+    </div>
+    <div class="col">
+      <input type="text" id="pojazdModel" class="form-control" placeholder="Model" />
+    </div>
+    <div class="col">
+      <input type="text" id="pojazdRej" class="form-control" placeholder="Numer rejstracyjny" />
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="dodajPoszukiwany()"><i class="bi bi-plus"></i> Dodaj pojazd</button>
+  <hr />
+  <h5>Poszukiwane pojazdy:</h5>
+  <ul class="list-group" id="listaPoszukiwanych"></ul>
+</div>
+
+<!-- Raport -->
+<div class="tab-pane fade" id="raport" role="tabpanel" aria-labelledby="raport-tab">
+  <h5 class="mb-3"><i class="bi bi-file-earmark-text"></i> Dodaj nowy raport</h5>
+  <div class="mb-3">
+    <label for="raportFunkcjonariusz" class="form-label">Imię i nazwisko funkcjonariusza</label>
+    <input type="text" id="raportFunkcjonariusz" class="form-control" placeholder="Imię i nazwisko" />
+  </div>
+  <div class="mb-3">
+    <textarea id="nowyRaport" class="form-control" rows="3" placeholder="Wpisz treść raportu"></textarea>
+  </div>
+  <button class="btn btn-primary" onclick="dodajRaport()"><i class="bi bi-plus"></i> Dodaj raport</button>
+  <hr />
+  <h5>Historia raportów:</h5>
+  <ul class="list-group" id="listaRaportow"></ul>
+</div>
+
+</div>
+</div> <!-- mainContent -->
+
+<!-- Skrypt JavaScript -->
+<script>
+  // Dane
+  let raporty = [];
+  let obywatele = [];
+  let mandaty = [];
+  let wyroki = [];
+  let poszukiwanePojazdy = [];
+
+  let zalogowanyUser = null;
+
+  // Funkcja logowania
+  function zaloguj() {
+    const login = document.getElementById('loginInput').value.trim();
+    const haslo = document.getElementById('passwordInput').value.trim();
+    if (login === 'admin' && haslo === 'admin') {
+      zalogowanyUser = { login: 'admin' };
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('mainContent').style.display = 'block';
+      odswiezListaRaportow();
+      odswiezObywateli();
+      odswiezMandaty();
+      odswiezWyroki();
+      odswiezPoszukiwane();
+    } else {
+      alert('Niepoprawny login lub hasło');
+    }
+  }
+
+  function wyloguj() {
+    zalogowanyUser = null;
+    document.getElementById('loginContainer').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'none';
+  }
+
+  // Funkcje dodawania i odświeżania
+  function dodajRaport() {
+    const tekst = document.getElementById('nowyRaport').value.trim();
+    const funkcjonariusz = document.getElementById('raportFunkcjonariusz').value.trim();
+    if (tekst !== '' && funkcjonariusz !== '') {
+      raporty.push({ id: Date.now(), tekst, funkcjonariusz });
+      document.getElementById('nowyRaport').value = '';
+      document.getElementById('raportFunkcjonariusz').value = '';
+      odswiezListaRaportow();
+    } else {
+      alert('Wpisz treść raportu i imię/nazwisko funkcjonariusza');
+    }
+  }
+
+  function odswiezListaRaportow() {
+    const ul = document.getElementById('listaRaportow');
+    ul.innerHTML = '';
+    raporty.slice().reverse().forEach(r => {
+      ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Funkcjonariusz:</strong> ${r.funkcjonariusz}<br>
+          ${r.tekst}
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="usunRaport(${r.id})"><i class="bi bi-trash"></i></button>
+      </li>`;
+    });
+  }
+
+  function usunRaport(id) {
+    raporty = raporty.filter(r => r.id !== id);
+    odswiezListaRaportow();
+  }
+
+  function dodajObywatela() {
+    const imie = document.getElementById('obywatelImie').value.trim();
+    const nazwisko = document.getElementById('obywatelNazwisko').value.trim();
+    const wiek = parseInt(document.getElementById('obywatelWiek').value);
+    if (imie && nazwisko && !isNaN(wiek)) {
+      obywatele.push({ id: Date.now(), imie, nazwisko, wiek });
+      document.getElementById('obywatelImie').value = '';
+      document.getElementById('obywatelNazwisko').value = '';
+      document.getElementById('obywatelWiek').value = '';
+      odswiezObywateli();
+      uzupełnijSelects();
+    } else {
+      alert('Uzupełnij wszystkie pola poprawnie');
+    }
+  }
+
+  function odswiezObywateli() {
+    const ul = document.getElementById('listaObywateli');
+    ul.innerHTML = '';
+    obywatele.forEach((o, index) => {
+      ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+        ${o.imie} ${o.nazwisko} (Wiek: ${o.wiek})
+        <button class="btn btn-sm btn-danger" onclick="usunObywatela(${index})"><i class="bi bi-trash"></i></button>
+      </li>`;
+    });
+  }
+
+  function usunObywatela(index) {
+    obywatele.splice(index, 1);
+    odswiezObywateli();
+    uzupełnijSelects();
+  }
+
+  function dodajMandat() {
+    const obywatelIdx = document.getElementById('mandatObywatel').value;
+    const kwota = parseFloat(document.getElementById('mandatKwota').value);
+    const data = document.getElementById('mandatData').value;
+    const powod = document.getElementById('mandatPowod').value.trim();
+    const czas = document.getElementById('mandatCzasZaplaty').value.trim();
+    const funkcjonariusz = document.getElementById('mandatFunkcjonariusz').value.trim();
+
+    if (
+      obywatelIdx !== '' &&
+      !isNaN(kwota) &&
+      data !== '' &&
+      powod !== '' &&
+      czas !== '' &&
+      funkcjonariusz !== ''
+    ) {
+      mandaty.push({
+        id: Date.now(),
+        obywatelIdx: parseInt(obywatelIdx),
+        kwota,
+        data,
+        powod,
+        czas,
+        funkcjonariusz,
+      });
+      document.getElementById('mandatKwota').value = '';
+      document.getElementById('mandatData').value = '';
+      document.getElementById('mandatPowod').value = '';
+      document.getElementById('mandatCzasZaplaty').value = '';
+      document.getElementById('mandatFunkcjonariusz').value = '';
+      odswiezMandaty();
+    } else {
+      alert('Uzupełnij wszystkie pola poprawnie');
+    }
+  }
+
+  function odswiezMandaty() {
+    const ul = document.getElementById('listaMandatow');
+    ul.innerHTML = '';
+    mandaty.forEach((m) => {
+      const obywatel = obywatele[m.obywatelIdx];
+      ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>${obywatel ? obywatel.imie + ' ' + obywatel.nazwisko : 'Obywatel'}</strong><br>
+          Kwota: ${m.kwota} zł | Data: ${m.data}<br>
+          Powód: ${m.powod}<br>
+          Czas zapłaty: ${m.czas}<br>
+          Wpisujący: ${m.funkcjonariusz}
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="usunMandat(${m.id})"><i class="bi bi-trash"></i></button>
+      </li>`;
+    });
+  }
+
+  function usunMandat(id) {
+    mandaty = mandaty.filter((m) => m.id !== id);
+    odswiezMandaty();
+  }
+
+  function dodajWyrok() {
+    const obywatelIdx = document.getElementById('wyrokObywatel').value;
+    const kara = document.getElementById('wyrokKara').value.trim();
+    const data = document.getElementById('wyrokData').value;
+    const wpisujacy = document.getElementById('wyrokFunkcjonariusz').value.trim();
+
+    if (
+      obywatelIdx !== '' &&
+      kara !== '' &&
+      data !== '' &&
+      wpisujacy !== ''
+    ) {
+      wyroki.push({ id: Date.now(), obywatelIdx: parseInt(obywatelIdx), kara, data, wpisujacy });
+      document.getElementById('wyrokKara').value = '';
+      document.getElementById('wyrokData').value = '';
+      document.getElementById('wyrokFunkcjonariusz').value = '';
+      odswiezWyroki();
+    } else {
+      alert('Uzupełnij wszystkie pola');
+    }
+  }
+
+  function odswiezWyroki() {
+    const ul = document.getElementById('listaWyrokow');
+    ul.innerHTML = '';
+    wyroki.forEach(w => {
+      const obywatel = obywatele[w.obywatelIdx];
+      ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>${obywatel ? obywatel.imie + ' ' + obywatel.nazwisko : 'Obywatel'}</strong><br>
+          Kara: ${w.kara} | Data: ${w.data}<br>
+          Wpisujący: ${w.wpisujacy}
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="usunWyrok(${w.id})"><i class="bi bi-trash"></i></button>
+      </li>`;
+    });
+  }
+
+  function usunWyrok(id) {
+    wyroki = wyroki.filter(w => w.id !== id);
+    odswiezWyroki();
+  }
+
+  function dodajPoszukiwany() {
+    const marka = document.getElementById('pojazdMarka').value.trim();
+    const model = document.getElementById('pojazdModel').value.trim();
+    const rej = document.getElementById('pojazdRej').value.trim();
+    if (marka && model && rej) {
+      poszukiwanePojazdy.push({ id: Date.now(), marka, model, rej });
+      document.getElementById('pojazdMarka').value = '';
+      document.getElementById('pojazdModel').value = '';
+      document.getElementById('pojazdRej').value = '';
+      odswiezPoszukiwane();
+    } else {
+      alert('Uzupełnij wszystkie pola');
+    }
+  }
+
+  function odswiezPoszukiwane() {
+    const ul = document.getElementById('listaPoszukiwanych');
+    ul.innerHTML = '';
+    poszukiwanePojazdy.forEach(p => {
+      ul.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+        ${p.marka} ${p.model} - Rej: ${p.rej}
+        <button class="btn btn-sm btn-danger" onclick="usunPoszukiwany(${p.id})"><i class="bi bi-trash"></i></button>
+      </li>`;
+    });
+  }
+
+  function usunPoszukiwany(id) {
+    poszukiwanePojazdy = poszukiwanePojazdy.filter(p => p.id !== id);
+    odswiezPoszukiwane();
+  }
+
+  // Funkcja przełączania zakładek
+  function showTab(tabName) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('show', 'active'));
+    document.getElementById(tabName).classList.add('show', 'active');
+  }
+
+  // Inicjalizacja
+  window.onload = () => {
+    document.getElementById('mainContent').style.display='none';
+  };
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
